@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +8,6 @@
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     
@@ -28,13 +26,27 @@
             <div class="col-md-7 col-lg-7" style="height: 450px; overflow: scroll;">
                 {% for task in tasks %}
                 <div class="card m-1">
-                    <div class="card-body">
-                        {{ task.task }}
-                        <span style="position: relative; float: right;">
-                            <a class="btn btn-success"><i class="fa fa-check"></i> Mark as Done</a>
-                            <a class="btn btn-danger"><i class="fa fa-trash"></i></a>
-                            <a class="btn btn-primary"><i class="fa fa-pencil"></i></a>
-                        </span>
+                    <div class="card-body d-flex justify-content-between align-items-start gap-2">
+                        <span>{{ task.task }}</span>
+                        
+                        <div class="d-flex flex-wrap gap-1">
+                            <form action="{% url 'mark_as_done' task.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Mark as Done</button>
+                            </form>
+                            <details>
+                                <summary class="btn btn-primary"><i class="fa fa-pencil"></i> Edit</summary>
+                                <form action="{% url 'editTask' task.pk %}" method="post" class="mt-2">
+                                    {% csrf_token %}
+                                    <input type="text" name="task" value="{{ task.task }}" maxlength="250" required class="form-control">
+                                    <button type="submit" class="btn btn-primary mt-1">Save</button>
+                                </form>
+                            </details>
+                            <form action="{% url 'deleteTask' task.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" aria-label="Delete {{ task.task }}"><i class="fa fa-trash"></i></button>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -43,11 +55,17 @@
             <div class="col-md-5 col-lg-5">
                 <h5>Completed Tasks</h5>
                 <!-- List of all the tasks that have completed -->
+                {% for task in completed_tasks %}
                 <div class="card m-1">
-                    <div class="card-body">
-                        This is the completed task.
+                    <div class="card-body d-flex justify-content-between align-items-start gap-2">
+                        <span>{{ task.task }}</span>
+                        <form action="{% url 'undoTask' task.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning"><i class="fa fa-undo"></i> Undo</button>
+                        </form>
                     </div>
                 </div>
+                {% endfor %}
             </div>
         </div>
         <div class="row">
@@ -57,14 +75,13 @@
                     {% csrf_token %}
                     <div class="form-group">
                         <span style="display: flex;">
-                            <input type="text" name="task" class="form-control" placeholder="Add a task">
-                            <button type="sumbit" class="btn btn-primary" style="width: 200px;"><i class="fa fa-plus"></i> Add</button>
+                            <input type="text" name="task" class="form-control" placeholder="Add a task" maxlength="250" required>
+                            <button type="submit" class="btn btn-primary" style="width: 200px;"><i class="fa fa-plus"></i> Add</button>
                         </span>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <script src="{% static 'script.js' %}"></script>
 </body>
 </html>
